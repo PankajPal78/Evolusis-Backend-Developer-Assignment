@@ -1,403 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evolusis – AI Reasoning Agent</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
 
+      .container {
+        width: 100%;
+        max-width: 900px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        animation: slideUp 0.5s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        color: #667eea;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        color: #666;
+        font-size: 1.1em;
+      }
+
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      #queryInput {
+        flex: 1;
+        padding: 14px 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s;
+      }
+
+      #queryInput:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      #submitBtn {
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      #submitBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      #submitBtn:active {
+        transform: translateY(0);
+      }
+
+      #submitBtn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .results {
+        display: none;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .result-section {
+        margin-bottom: 25px;
+      }
+
+      .result-section h2 {
+        color: #667eea;
+        font-size: 1.3em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .reasoning {
+        background: #f0f4ff;
+        padding: 15px;
+        border-left: 4px solid #667eea;
+        border-radius: 6px;
+        color: #333;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .answer {
+        background: #f0fff4;
+        padding: 15px;
+        border-left: 4px solid #48bb78;
+        border-radius: 6px;
+        color: #333;
+        line-height: 1.8;
+        font-size: 1.05em;
+      }
+
+      .tools {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .tool-badge {
+        background: #667eea;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
+      }
+
+      .error {
+        background: #fff5f5;
+        color: #c53030;
+        padding: 15px;
+        border-left: 4px solid #f56565;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .memory-section {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 30px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .memory-section h3 {
+        color: #667eea;
+        margin-bottom: 12px;
+        font-size: 1.1em;
+      }
+
+      .memory-list {
+        background: white;
+        padding: 12px;
+        border-radius: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-size: 0.9em;
+        color: #555;
+        line-height: 1.5;
+      }
+
+      .memory-empty {
+        color: #999;
+        font-style: italic;
+      }
+
+      .divider {
+        height: 2px;
+        background: #e0e0e0;
+        margin: 30px 0;
+      }
+
+      @media (max-width: 600px) {
         .container {
-            width: 100%;
-            max-width: 900px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+          padding: 20px;
         }
 
         .header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
+          font-size: 1.8em;
         }
 
         .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+          flex-direction: column;
         }
-
-        #queryInput {
-            flex: 1;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        #queryInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        #submitBtn {
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        #submitBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        #submitBtn:active {
-            transform: translateY(0);
-        }
-
-        #submitBtn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .results {
-            display: none;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .result-section {
-            margin-bottom: 25px;
-        }
-
-        .result-section h2 {
-            color: #667eea;
-            font-size: 1.3em;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .reasoning {
-            background: #f0f4ff;
-            padding: 15px;
-            border-left: 4px solid #667eea;
-            border-radius: 6px;
-            color: #333;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .answer {
-            background: #f0fff4;
-            padding: 15px;
-            border-left: 4px solid #48bb78;
-            border-radius: 6px;
-            color: #333;
-            line-height: 1.8;
-            font-size: 1.05em;
-        }
-
-        .tools {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .tool-badge {
-            background: #667eea;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .error {
-            background: #fff5f5;
-            color: #c53030;
-            padding: 15px;
-            border-left: 4px solid #f56565;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .memory-section {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .memory-section h3 {
-            color: #667eea;
-            margin-bottom: 12px;
-            font-size: 1.1em;
-        }
-
-        .memory-list {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 0.9em;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        .memory-empty {
-            color: #999;
-            font-style: italic;
-        }
-
-        .divider {
-            height: 2px;
-            background: #e0e0e0;
-            margin: 30px 0;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .input-group {
-                flex-direction: column;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>🤖 Evolusis</h1>
-            <p>AI Reasoning Agent with Intent Detection & External Data Integration</p>
+      <div class="header">
+        <h1>🤖 Evolusis</h1>
+        <p>
+          AI Reasoning Agent with Intent Detection & External Data Integration
+        </p>
+      </div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="queryInput"
+          placeholder="Ask me anything... (e.g., 'Latest news on AI', 'What's the weather in London?')"
+          autocomplete="off" />
+        <button id="submitBtn">
+          <span class="spinner"></span>
+          <span>Ask</span>
+        </button>
+      </div>
+
+      <div class="error" id="errorBox"></div>
+
+      <div class="results" id="results">
+        <div class="result-section">
+          <h2>🧠 Reasoning</h2>
+          <div class="reasoning" id="reasoning"></div>
         </div>
 
-        <div class="input-group">
-            <input 
-                type="text" 
-                id="queryInput" 
-                placeholder="Ask me anything... (e.g., 'Latest news on AI', 'What's the weather in London?')"
-                autocomplete="off"
-            >
-            <button id="submitBtn">
-                <span class="spinner"></span>
-                <span>Ask</span>
-            </button>
+        <div class="divider"></div>
+
+        <div class="result-section">
+          <h2>✨ Answer</h2>
+          <div class="answer" id="answer"></div>
         </div>
 
-        <div class="error" id="errorBox"></div>
-
-        <div class="results" id="results">
-            <div class="result-section">
-                <h2>🧠 Reasoning</h2>
-                <div class="reasoning" id="reasoning"></div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="result-section">
-                <h2>✨ Answer</h2>
-                <div class="answer" id="answer"></div>
-            </div>
-
-            <div class="result-section">
-                <h2>🔧 Tools Used</h2>
-                <div class="tools" id="tools"></div>
-            </div>
+        <div class="result-section">
+          <h2>🔧 Tools Used</h2>
+          <div class="tools" id="tools"></div>
         </div>
+      </div>
 
-        <div class="memory-section">
-            <h3>📋 Conversation Memory</h3>
-            <div class="memory-list" id="memory">
-                <div class="memory-empty">No conversations yet...</div>
-            </div>
+      <div class="memory-section">
+        <h3>📋 Conversation Memory</h3>
+        <div class="memory-list" id="memory">
+          <div class="memory-empty">No conversations yet...</div>
         </div>
+      </div>
     </div>
 
     <script>
-        const API_URL = 'http://127.0.0.1:8000/ask';
-        const queryInput = document.getElementById('queryInput');
-        const submitBtn = document.getElementById('submitBtn');
-        const resultsDiv = document.getElementById('results');
-        const errorBox = document.getElementById('errorBox');
-        const spinner = document.querySelector('.spinner');
-        const reasoningDiv = document.getElementById('reasoning');
-        const answerDiv = document.getElementById('answer');
-        const toolsDiv = document.getElementById('tools');
-        const memoryDiv = document.getElementById('memory');
+      const baseURL = window.location.origin;
+      const API_URL = `${baseURL}/ask`;
+      const queryInput = document.getElementById("queryInput");
+      const submitBtn = document.getElementById("submitBtn");
+      const resultsDiv = document.getElementById("results");
+      const errorBox = document.getElementById("errorBox");
+      const spinner = document.querySelector(".spinner");
+      const reasoningDiv = document.getElementById("reasoning");
+      const answerDiv = document.getElementById("answer");
+      const toolsDiv = document.getElementById("tools");
+      const memoryDiv = document.getElementById("memory");
 
-        // Store memory locally for UI display
-        let conversationMemory = [];
+      // Store memory locally for UI display
+      let conversationMemory = [];
 
-        submitBtn.addEventListener('click', handleSubmit);
-        queryInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSubmit();
-        });
+      submitBtn.addEventListener("click", handleSubmit);
+      queryInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") handleSubmit();
+      });
 
-        async function handleSubmit() {
-            const query = queryInput.value.trim();
-            
-            if (!query) {
-                showError('Please enter a query');
-                return;
-            }
+      async function handleSubmit() {
+        const query = queryInput.value.trim();
 
-            // Clear previous results
-            errorBox.style.display = 'none';
-            resultsDiv.style.display = 'none';
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            spinner.style.display = 'inline-block';
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Display results
-                reasoningDiv.textContent = data.reasoning;
-                answerDiv.textContent = data.answer;
-
-                // Display tools
-                if (data.used_tools && data.used_tools.length > 0) {
-                    toolsDiv.innerHTML = data.used_tools
-                        .map(tool => `<span class="tool-badge">${tool}</span>`)
-                        .join('');
-                } else {
-                    toolsDiv.innerHTML = '<span class="tool-badge">LLM Only</span>';
-                }
-
-                // Update memory
-                conversationMemory.push({ query, answer: data.answer });
-                updateMemoryDisplay();
-
-                resultsDiv.style.display = 'block';
-                queryInput.value = '';
-
-            } catch (error) {
-                showError(`Error: ${error.message}. Make sure the FastAPI server is running on http://127.0.0.1:8000`);
-            } finally {
-                submitBtn.disabled = false;
-                spinner.style.display = 'none';
-            }
+        if (!query) {
+          showError("Please enter a query");
+          return;
         }
 
-        function showError(message) {
-            errorBox.textContent = message;
-            errorBox.style.display = 'block';
+        // Clear previous results
+        errorBox.style.display = "none";
+        resultsDiv.style.display = "none";
+
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.style.display = "inline-block";
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Display results
+          reasoningDiv.textContent = data.reasoning;
+          answerDiv.textContent = data.answer;
+
+          // Display tools
+          if (data.used_tools && data.used_tools.length > 0) {
+            toolsDiv.innerHTML = data.used_tools
+              .map((tool) => `<span class="tool-badge">${tool}</span>`)
+              .join("");
+          } else {
+            toolsDiv.innerHTML = '<span class="tool-badge">LLM Only</span>';
+          }
+
+          // Update memory
+          conversationMemory.push({ query, answer: data.answer });
+          updateMemoryDisplay();
+
+          resultsDiv.style.display = "block";
+          queryInput.value = "";
+        } catch (error) {
+          showError(
+            `Error: ${error.message}. Make sure the FastAPI server is running on http://127.0.0.1:8000`
+          );
+        } finally {
+          submitBtn.disabled = false;
+          spinner.style.display = "none";
+        }
+      }
+
+      function showError(message) {
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+      }
+
+      function updateMemoryDisplay() {
+        if (conversationMemory.length === 0) {
+          memoryDiv.innerHTML =
+            '<div class="memory-empty">No conversations yet...</div>';
+          return;
         }
 
-        function updateMemoryDisplay() {
-            if (conversationMemory.length === 0) {
-                memoryDiv.innerHTML = '<div class="memory-empty">No conversations yet...</div>';
-                return;
-            }
-
-            memoryDiv.innerHTML = conversationMemory
-                .slice(-5)
-                .map((item, idx) => `
+        memoryDiv.innerHTML = conversationMemory
+          .slice(-5)
+          .map(
+            (item, idx) => `
                     <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                        <strong>Q${idx + 1}:</strong> ${escapeHtml(item.query)}<br>
-                        <strong>A:</strong> ${escapeHtml(item.answer.substring(0, 100))}...
+                        <strong>Q${idx + 1}:</strong> ${escapeHtml(
+              item.query
+            )}<br>
+                        <strong>A:</strong> ${escapeHtml(
+                          item.answer.substring(0, 100)
+                        )}...
                     </div>
-                `)
-                .join('');
-        }
+                `
+          )
+          .join("");
+      }
 
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
     </script>
-</body>
+  </body>
 </html>
